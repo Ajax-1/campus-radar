@@ -1,6 +1,7 @@
 package io.github.ajax1.campusradar.collect;
 
 import io.github.ajax1.campusradar.RadarProperties;
+import io.github.ajax1.campusradar.job.JobPostingRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -17,10 +18,12 @@ public class CollectScheduler {
 
     private final CollectService collectService;
     private final RadarProperties properties;
+    private final JobPostingRepository jobs;
 
-    public CollectScheduler(CollectService collectService, RadarProperties properties) {
+    public CollectScheduler(CollectService collectService, RadarProperties properties, JobPostingRepository jobs) {
         this.collectService = collectService;
         this.properties = properties;
+        this.jobs = jobs;
     }
 
     @Scheduled(cron = "${radar.collect.cron}", zone = "${radar.collect.zone}")
@@ -30,7 +33,8 @@ public class CollectScheduler {
 
     @EventListener(ApplicationReadyEvent.class)
     public void onStartup() {
-        if (properties.collect().runOnStartup()) {
+        boolean firstRun = properties.collect().whenEmpty() && jobs.count() == 0;
+        if (properties.collect().runOnStartup() || firstRun) {
             Thread.ofVirtual().name("collect-startup").start(() -> runAll("启动"));
         }
     }

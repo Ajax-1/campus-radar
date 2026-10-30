@@ -35,6 +35,7 @@ public class CollectService {
     private final CollectRunRepository runs;
     private final RadarProperties.Collect config;
     private final Map<String, Boolean> running = new ConcurrentHashMap<>();
+    private volatile boolean runningAll;
 
     @Autowired
     public CollectService(CollectorRegistry registry, JobUpsertService upsert, CollectRunRepository runs,
@@ -55,6 +56,20 @@ public class CollectService {
         return List.copyOf(collectors.keySet());
     }
 
+    /**
+     * 是否有采集正在进行：一整轮在跑，或者单个数据源在跑
+     */
+    public boolean collecting() {
+        return runningAll || !running.isEmpty();
+    }
+
+    /**
+     * 正在采集的数据源，一轮采集的两个来源之间可能为空
+     */
+    public List<String> collectingSources() {
+        return List.copyOf(running.keySet());
+    }
+
     public Optional<JobCollector> collector(String source) {
         return Optional.ofNullable(collectors.get(source));
     }
@@ -64,11 +79,16 @@ public class CollectService {
      */
     public List<CollectRun> runAll() {
         List<CollectRun> out = new ArrayList<>();
-        for (String source : collectors.keySet()) {
-            if (config.disabledSources().contains(source)) {
-                continue;
+        runningAll = true;
+        try {
+            for (String source : collectors.keySet()) {
+                if (config.disabledSources().contains(source)) {
+                    continue;
+                }
+                out.add(run(source));
             }
-            out.add(run(source));
+        } finally {
+            runningAll = false;
         }
         return out;
     }

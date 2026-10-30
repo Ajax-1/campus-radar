@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>校招雷达</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='none' stroke='%230b7a75' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='7' fill='none' stroke='%230b7a75' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%230b7a75'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <div class="shell">
+    <nav class="side" aria-label="主导航">
+      <a class="brand" href="#/">
+        <svg viewBox="0 0 32 32" width="24" height="24" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="16" cy="16" r="7" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M16 16 L27 8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><circle cx="16" cy="16" r="2.5" fill="currentColor"/></svg>
+        <span>校招雷达</span>
+      </a>
+      <div class="nav" id="nav"></div>
+      <div class="side-foot" id="side-foot"></div>
+    </nav>
+    <main class="main" id="view" tabindex="-1"></main>
+  </div>
+  <aside class="drawer" id="drawer" hidden aria-label="岗位详情"></aside>
+  <div class="toast" id="toast" role="status" hidden></div>
+  <script src="app.js"></script>
+</body>
+</html>
