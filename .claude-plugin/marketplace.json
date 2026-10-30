@@ -1,0 +1,14 @@
+{
+  "name": "campus-radar",
+  "description": "校招雷达：开源的校招求职 agent",
+  "owner": {
+    "name": "Ajax-1"
+  },
+  "plugins": [
+    {
+      "name": "campus-radar",
+      "source": "./",
+      "description": "校招雷达：查岗位、做推荐、管投递、按 JD 定制简历"
+    }
+  ]
+}

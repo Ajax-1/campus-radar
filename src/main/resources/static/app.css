@@ -84,7 +84,8 @@ button:disabled { opacity: .55; cursor: default; }
 .item .t:hover { color: var(--accent); background: none; }
 .item .m { color: var(--ink-3); font-size: 13px; }
 .item .r { color: var(--ink-2); font-size: 13px; }
-.item .acts { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.item .acts { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; align-items: center; }
+.item .acts select { width: auto; }
 .score { font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
 .tag { display: inline-block; font-size: 12px; font-weight: 600; padding: 0 6px; border-radius: 4px; background: var(--sunken); color: var(--ink-2); }
 .tag.new { background: var(--good-soft); color: var(--good); }

@@ -26,7 +26,7 @@ spring:
     mcp:
       server:
         name: campus-radar
-        version: 0.1.0
+        version: 0.2.0
         type: SYNC
         # 显式指定：Spring AI 2.0.1 在未设置时实际启用的是 SSE（spring-projects/spring-ai#7207）
         protocol: STREAMABLE

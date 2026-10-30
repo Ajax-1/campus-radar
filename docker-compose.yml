@@ -1,0 +1,27 @@
+# docker compose up -d，然后打开 http://localhost:8090
+services:
+  campus-radar:
+    image: ghcr.io/ajax-1/campus-radar:latest
+    build: .
+    restart: unless-stopped
+    ports:
+      # 只映射到本机。档案和投递记录在这个服务里，不要改成对外开放
+      - "127.0.0.1:8090:8090"
+    volumes:
+      - radar-data:/app/data
+    environment:
+      # 下面都是可选项，取消注释后填写
+      # 推到个人微信：sct.ftqq.com 微信扫码后复制 SendKey
+      # RADAR_SERVERCHAN_KEY: ""
+      # RADAR_WECOM_WEBHOOK: ""
+      # RADAR_FEISHU_WEBHOOK: ""
+      # 自动识别笔试面试邮件，密码填邮箱的授权码
+      # RADAR_MAIL_HOST: imap.qq.com
+      # RADAR_MAIL_USERNAME: ""
+      # RADAR_MAIL_PASSWORD: ""
+      # 人在海外时设置，日程会同时显示当地时间
+      # RADAR_DISPLAY_ZONE: America/New_York
+      TZ: Asia/Shanghai
+
+volumes:
+  radar-data:

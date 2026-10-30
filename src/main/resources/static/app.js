@@ -18,7 +18,7 @@ function h(tag, props, ...kids) {
     else if (v === true) el.setAttribute(k, '');
     else el.setAttribute(k, v);
   }
-  for (const kid of kids.flat()) {
+  for (const kid of kids.flat(Infinity)) {
     if (kid == null || kid === false) continue;
     el.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
   }
@@ -27,7 +27,7 @@ function h(tag, props, ...kids) {
 
 // replaceChildren 会把 null 显示成文字，条件内容先滤掉
 function show(view, ...kids) {
-  view.replaceChildren(...kids.flat().filter(Boolean));
+  view.replaceChildren(...kids.flat(Infinity).filter(Boolean));
 }
 
 function token() {

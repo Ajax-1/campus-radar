@@ -1,0 +1,10 @@
+{
+  "name": "campus-radar",
+  "version": "0.2.0",
+  "description": "校招雷达：查各公司官网在招岗位，按你的情况推荐，管理投递和笔试面试日程，按 JD 定制简历",
+  "author": { "name": "Ajax-1" },
+  "homepage": "https://github.com/Ajax-1/campus-radar",
+  "repository": "https://github.com/Ajax-1/campus-radar",
+  "license": "MIT",
+  "keywords": ["校招", "秋招", "求职", "jobs", "mcp"]
+}

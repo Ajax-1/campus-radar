@@ -7,6 +7,7 @@ import io.github.ajax1.campusradar.profile.UserProfile;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -42,6 +43,12 @@ public class MatchCache {
             key = current;
         }
         Set<Long> tracked = Set.copyOf(applications.findTrackedJobIds());
-        return results.stream().filter(m -> !tracked.contains(m.job().id())).limit(limit).toList();
+        // 同一个岗位常按城市拆成多条，名字完全相同的只留分最高的一条
+        Set<String> seen = new HashSet<>();
+        return results.stream()
+                .filter(m -> !tracked.contains(m.job().id()))
+                .filter(m -> seen.add(m.job().company() + "|" + m.job().title()))
+                .limit(limit)
+                .toList();
     }
 }
