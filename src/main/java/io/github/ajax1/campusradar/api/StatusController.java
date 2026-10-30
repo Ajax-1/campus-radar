@@ -54,11 +54,13 @@ public class StatusController {
 
     @GetMapping("/status")
     public Status status() {
+        // 先读采集状态再数岗位：页面看到「采集结束」时，岗位数一定是结束之后的
+        boolean collecting = collect.collecting();
         List<SourceStatus> sources = sourceStatus.list();
         Instant last = sources.stream().map(SourceStatus::lastRunAt).filter(Objects::nonNull)
                 .max(Comparator.naturalOrder()).orElse(null);
         return new Status(version, properties.hosted().enabled(), jobs.countByStatus(JobStatus.OPEN), sources.size(),
-                last, collect.collecting(), collect.collectingSources(), properties.mail().enabled(), push.enabled(),
+                last, collecting, collect.collectingSources(), properties.mail().enabled(), push.enabled(),
                 properties.snapshot().enabled());
     }
 }

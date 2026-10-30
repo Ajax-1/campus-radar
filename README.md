@@ -37,7 +37,7 @@ curl -fsSL https://raw.githubusercontent.com/Ajax-1/campus-radar/main/install.sh
 
 **Windows**：安装 Java 21 后，从 [Releases](https://github.com/Ajax-1/campus-radar/releases) 下载 `campus-radar.jar`，运行 `java -jar campus-radar.jar`。
 
-然后打开 <http://localhost:8090>，填上方向和技能就能看到推荐。第一次启动会采集一轮官网，约十几分钟，期间可以边用边等。
+然后打开 <http://localhost:8090>，填上方向和技能就能看到推荐。第一次启动会采集一轮官网，大约 8 分钟，期间可以边用边等。
 
 ## 接入你的 Agent
 

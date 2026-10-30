@@ -12,10 +12,10 @@ spring:
   task:
     scheduling:
       pool:
-        # 一轮采集要十几分钟，不能让邮箱同步和提醒排队等它
+        # 一轮采集要好几分钟，不能让邮箱同步和提醒排队等它
         size: 4
   datasource:
-    url: jdbc:h2:file:./data/campus-radar;AUTO_SERVER=TRUE
+    url: jdbc:h2:file:./data/campus-radar
     username: sa
     password:
   jpa:

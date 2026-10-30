@@ -184,7 +184,7 @@ function collectingBanner() {
   const s = state.status;
   if (!s?.collecting) return null;
   const now = s.collectingSources?.length ? '，正在采集 ' + s.collectingSources.join('、') : '';
-  return h('div', { class: 'banner' }, h('span', { class: 'pulse' }), '岗位库更新中' + now + '。已收录 ' + s.openJobs.toLocaleString() + ' 个在招岗位' + (s.snapshot ? '。' : '，首次采集约需十几分钟，可以先用起来。'));
+  return h('div', { class: 'banner' }, h('span', { class: 'pulse' }), '岗位库更新中' + now + '。已收录 ' + s.openJobs.toLocaleString() + ' 个在招岗位' + (s.snapshot ? '。' : '，首次采集约需 8 分钟，可以先用起来。'));
 }
 
 async function viewJobs(view) {
