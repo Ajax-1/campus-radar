@@ -12,14 +12,27 @@ import java.util.List;
  * @param feishuSites 使用飞书招聘系统的公司站点，每个站点生成一个采集器
  * @param push        每日推送
  * @param mail        邮箱同步（识别笔试、面试邀请）
+ * @param hosted      公开部署的只读模式
  */
 @ConfigurationProperties(prefix = "radar")
-public record RadarProperties(Collect collect, Mcp mcp, List<FeishuSite> feishuSites, Push push, Mail mail) {
+public record RadarProperties(Collect collect, Mcp mcp, List<FeishuSite> feishuSites, Push push, Mail mail,
+                              Hosted hosted) {
 
     public RadarProperties {
         feishuSites = feishuSites == null ? List.of() : List.copyOf(feishuSites);
         push = push == null ? new Push(null, "-", "Asia/Shanghai", 5, 2) : push;
         mail = mail == null ? new Mail(null, 993, null, null, "INBOX", 14, "-", "Asia/Shanghai", null) : mail;
+        hosted = hosted == null ? new Hosted(false, 60, 3000) : hosted;
+    }
+
+    /**
+     * 公开部署时打开：MCP 和 REST 只留岗位相关的只读能力，档案、台账、日程、邮箱一律不暴露，并按来源 IP 限流。
+     *
+     * @param enabled            是否为只读公开模式
+     * @param ratePerMinute      单个来源 IP 每分钟的请求上限
+     * @param totalRatePerMinute 全局每分钟的请求上限，来源 IP 被伪造时的兜底
+     */
+    public record Hosted(boolean enabled, int ratePerMinute, int totalRatePerMinute) {
     }
 
     /**
@@ -59,9 +72,10 @@ public record RadarProperties(Collect collect, Mcp mcp, List<FeishuSite> feishuS
      * @param requestIntervalMs 同一数据源两次列表请求之间的最小间隔
      * @param detailIntervalMs  逐个拉取详情时的最小间隔
      * @param disabledSources   暂停采集的数据源编码
+     * @param whenEmpty         启动时岗位库是空的就立即采集一轮，第一次打开就有数据
      */
     public record Collect(String cron, String zone, boolean runOnStartup, long requestIntervalMs,
-                          long detailIntervalMs, List<String> disabledSources) {
+                          long detailIntervalMs, List<String> disabledSources, boolean whenEmpty) {
         public Collect {
             disabledSources = disabledSources == null ? List.of() : List.copyOf(disabledSources);
         }

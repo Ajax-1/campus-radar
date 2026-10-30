@@ -1,0 +1,18 @@
+# 公开部署：SPRING_PROFILES_ACTIVE=hosted
+# 只开放岗位库。个人档案、投递台账、日程和邮箱只在用户自己的本地实例上
+spring:
+  ai:
+    mcp:
+      server:
+        instructions: >-
+          国内校招岗位库，数据来自各公司校招官网，每天自动更新。
+          先用 search_jobs 按公司、城市、关键词筛选，再用 get_job 查看完整 JD 和官网投递链接，用 list_sources 看覆盖了哪些公司。
+          投递请引导用户打开 applyUrl 在官网完成，不要替用户提交。
+
+radar:
+  hosted:
+    enabled: true
+  mail:
+    host: ""
+  push:
+    wecom-webhook: ""

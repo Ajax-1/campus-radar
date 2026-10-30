@@ -1,5 +1,7 @@
 server:
-  port: 8090
+  port: ${RADAR_PORT:8090}
+  # 默认只监听本机。档案和投递记录在这个服务里，不要直接暴露到局域网或公网
+  address: ${RADAR_BIND_ADDRESS:127.0.0.1}
   error:
     # 400 时把「没有收录公司…」这类提示返回给调用方
     include-message: always
@@ -39,8 +41,13 @@ radar:
     request-interval-ms: 400
     detail-interval-ms: 300
     disabled-sources: []
+    when-empty: ${RADAR_COLLECT_WHEN_EMPTY:true}
   mcp:
     token: ${RADAR_MCP_TOKEN:}
+  hosted:
+    enabled: false
+    rate-per-minute: ${RADAR_RATE_PER_MINUTE:60}
+    total-rate-per-minute: ${RADAR_TOTAL_RATE_PER_MINUTE:3000}
   mail:
     # IMAP 只读同步，识别笔试、面试、测评邀请和 Offer、拒信。密码填邮箱的「授权码 / 应用专用密码」
     host: ${RADAR_MAIL_HOST:}
