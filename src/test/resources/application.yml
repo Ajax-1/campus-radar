@@ -1,0 +1,38 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:radar-test;DB_CLOSE_DELAY=-1
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
+radar:
+  collect:
+    cron: "-"
+    zone: Asia/Shanghai
+    run-on-startup: false
+    request-interval-ms: 0
+    detail-interval-ms: 0
+    disabled-sources: []
+  mcp:
+    token: ""
+  mail:
+    host: ""
+    port: 993
+    username: ""
+    password: ""
+    folder: INBOX
+    lookback-days: 14
+    cron: "-"
+    zone: Asia/Shanghai
+  push:
+    wecom-webhook: ""
+    cron: "-"
+    zone: Asia/Shanghai
+    top-n: 5
+    max-per-company: 2
+  # 测试配置会覆盖 main 的 application.yml，飞书站点要单独列；只放字节，测试不发外网请求
+  feishu-sites:
+    - source: bytedance
+      company: 字节跳动
+      base-url: https://jobs.bytedance.com
+      aliases: [字节, ByteDance]

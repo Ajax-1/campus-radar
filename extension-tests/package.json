@@ -1,0 +1,11 @@
+{
+  "name": "campus-radar-extension-tests",
+  "private": true,
+  "description": "浏览器插件填表逻辑的测试（jsdom），不随插件发布",
+  "scripts": {
+    "test": "node --test"
+  },
+  "devDependencies": {
+    "jsdom": "25.0.1"
+  }
+}

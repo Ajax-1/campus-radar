@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>校招雷达</title>
+  <style>
+    :root { --fg: #1c1c1e; --muted: #6b6b70; --line: #e3e3e6; --accent: #2563eb; --bg: #fff; }
+    @media (prefers-color-scheme: dark) { :root { --fg: #f2f2f4; --muted: #a0a0a6; --line: #3a3a3e; --bg: #1c1c1e; } }
+    body { width: 380px; margin: 0; font: 13px/1.5 -apple-system, system-ui, sans-serif; color: var(--fg); background: var(--bg); }
+    header { display: flex; gap: 4px; padding: 10px 12px 0; border-bottom: 1px solid var(--line); }
+    header button { border: 0; background: none; color: var(--muted); padding: 6px 10px; cursor: pointer; font: inherit; border-bottom: 2px solid transparent; }
+    header button.on { color: var(--fg); border-color: var(--accent); }
+    section { display: none; padding: 12px; max-height: 520px; overflow: auto; }
+    section.on { display: block; }
+    label { display: block; margin: 8px 0 2px; color: var(--muted); }
+    input, textarea, select { width: 100%; box-sizing: border-box; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; font: inherit; color: var(--fg); background: var(--bg); }
+    textarea { min-height: 64px; resize: vertical; }
+    .row { display: flex; gap: 8px; } .row > div { flex: 1; }
+    .actions { display: flex; gap: 8px; margin-top: 12px; }
+    .actions button { flex: 1; padding: 8px; border: 0; border-radius: 6px; cursor: pointer; font: inherit; color: #fff; background: var(--accent); }
+    .actions button.secondary { background: none; color: var(--fg); border: 1px solid var(--line); }
+    .note { color: var(--muted); margin-top: 8px; }
+    #status { min-height: 18px; margin-top: 8px; }
+    .app { padding: 8px 0; border-bottom: 1px solid var(--line); }
+    .app b { font-weight: 600; } .app span { color: var(--muted); }
+  </style>
+</head>
+<body>
+<header>
+  <button data-tab="fill" class="on">填写</button>
+  <button data-tab="profile">我的信息</button>
+  <button data-tab="apps">投递</button>
+  <button data-tab="settings">设置</button>
+</header>
+
+<section id="fill" class="on">
+  <p>打开网申表单页面后点下面的按钮：只填空着的字段，不会帮你提交。</p>
+  <div class="actions">
+    <button id="fill-now">填写当前页面</button>
+    <button id="record-now" class="secondary">记录已投递</button>
+  </div>
+  <div id="fill-status" class="note"></div>
+</section>
+
+<section id="profile">
+  <p class="note">这些信息只保存在本机浏览器，不会上传到服务器。</p>
+  <div class="row"><div><label>姓名</label><input name="name"></div><div><label>英文名/拼音</label><input name="englishName"></div></div>
+  <div class="row"><div><label>手机号</label><input name="phone"></div><div><label>邮箱</label><input name="email"></div></div>
+  <div class="row"><div><label>微信</label><input name="wechat"></div><div><label>现居城市</label><input name="currentCity"></div></div>
+  <div class="row"><div><label>学校</label><input name="school"></div><div><label>专业</label><input name="major"></div></div>
+  <div class="row">
+    <div><label>学历</label><select name="degree"><option value=""></option><option>本科</option><option>硕士</option><option>博士</option></select></div>
+    <div><label>GPA</label><input name="gpa" placeholder="3.7/4.0"></div>
+  </div>
+  <div class="row"><div><label>入学时间</label><input name="eduStart" placeholder="2023-09"></div><div><label>毕业时间</label><input name="eduEnd" placeholder="2027-06"></div></div>
+  <div class="row"><div><label>专业排名</label><input name="rank" placeholder="5/120"></div><div><label>英语水平</label><input name="english" placeholder="CET-6 560"></div></div>
+  <div class="row"><div><label>GitHub</label><input name="github"></div><div><label>个人主页</label><input name="website"></div></div>
+  <label>自我评价</label><textarea name="intro"></textarea>
+  <div class="actions"><button id="save-profile">保存</button></div>
+  <div id="profile-status" class="note"></div>
+</section>
+
+<section id="apps">
+  <div id="apps-list" class="note">加载中…</div>
+</section>
+
+<section id="settings">
+  <label>校招雷达服务地址</label>
+  <input id="server" placeholder="http://127.0.0.1:8090">
+  <label>访问令牌（服务端设置了 RADAR_MCP_TOKEN 时填）</label>
+  <input id="token" type="password">
+  <div class="actions">
+    <button id="save-settings">保存</button>
+    <button id="ping" class="secondary">测试连接</button>
+  </div>
+  <div id="settings-status" class="note"></div>
+</section>
+
+<script src="popup.js"></script>
+</body>
+</html>

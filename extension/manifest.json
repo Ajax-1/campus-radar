@@ -1,0 +1,36 @@
+{
+  "manifest_version": 3,
+  "name": "校招雷达 · 网申助手",
+  "version": "0.1.0",
+  "description": "在网申页面一键填写基本信息（只填空字段、从不自动提交），投递后一键记入校招雷达的投递台账。个人信息只保存在本机浏览器。",
+  "permissions": ["storage", "activeTab", "scripting"],
+  "host_permissions": ["http://127.0.0.1:8090/*", "http://localhost:8090/*"],
+  "optional_host_permissions": ["https://*/*", "http://*/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "校招雷达",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.jobs.feishu.cn/*",
+        "https://jobs.bytedance.com/*",
+        "https://app.mokahr.com/*",
+        "https://*.zhiye.com/*",
+        "https://*.hotjob.cn/*",
+        "https://join.qq.com/*",
+        "https://campus-talent.alibaba.com/*",
+        "https://zhaopin.meituan.com/*",
+        "https://talent.baidu.com/*",
+        "https://campus.jd.com/*",
+        "https://campus.kuaishou.cn/*",
+        "https://careers.pddglobalhr.com/*"
+      ],
+      "js": ["fill.js", "content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
