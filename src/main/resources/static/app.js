@@ -25,6 +25,11 @@ function h(tag, props, ...kids) {
   return el;
 }
 
+// replaceChildren 会把 null 显示成文字，条件内容先滤掉
+function show(view, ...kids) {
+  view.replaceChildren(...kids.flat().filter(Boolean));
+}
+
 function token() {
   try { return localStorage.getItem('radar-token') || ''; } catch { return ''; }
 }
@@ -156,7 +161,7 @@ async function openJob(id) {
       !state.status?.hosted && !tracked ? h('button', { onclick: (e) => track(j, '已投递').then(() => { e.target.disabled = true; e.target.textContent = '已记录'; }).catch((x) => toast(x.message)) }, '我投了这个') : null,
       tracked ? h('span', { class: 'tag done' }, tracked.status) : null,
       h('button', { class: 'link', onclick: closeJob }, '关闭'));
-    d.replaceChildren(
+    show(d,
       h('h1', null, j.title),
       jobMeta({ ...j, postedAt: j.publishedAt || j.firstSeenAt }),
       j.category ? h('div', { class: 'sub' }, j.category) : null,
@@ -179,7 +184,7 @@ function collectingBanner() {
   const s = state.status;
   if (!s?.collecting) return null;
   const now = s.collectingSources?.length ? '，正在采集 ' + s.collectingSources.join('、') : '';
-  return h('div', { class: 'banner' }, h('span', { class: 'pulse' }), '岗位库更新中' + now + '。已收录 ' + s.openJobs.toLocaleString() + ' 个在招岗位，首次采集约需十几分钟，可以先用起来。');
+  return h('div', { class: 'banner' }, h('span', { class: 'pulse' }), '岗位库更新中' + now + '。已收录 ' + s.openJobs.toLocaleString() + ' 个在招岗位' + (s.snapshot ? '。' : '，首次采集约需十几分钟，可以先用起来。'));
 }
 
 async function viewJobs(view) {
@@ -216,7 +221,7 @@ async function viewJobs(view) {
       return o;
     }));
   const keyword = h('input', { class: 'grow', type: 'search', value: f.keyword, placeholder: '关键词，如 后端 Java、大模型 算法', 'aria-label': '关键词' });
-  view.replaceChildren(
+  show(view,
     h('div', { class: 'head' }, h('h1', null, '全部岗位'), info),
     collectingBanner(),
     h('form', { class: 'card', onsubmit: (e) => { e.preventDefault(); f.keyword = keyword.value.trim(); run(); } },
@@ -260,12 +265,12 @@ async function viewToday(view) {
   }
   if (!profile.targetRoles?.length && !profile.skills?.length) {
     parts.push(profileQuickForm(() => route()));
-    view.replaceChildren(...parts.filter(Boolean));
+    show(view, parts);
     return;
   }
   const box = h('div', { class: 'card' }, h('p', { class: 'empty' }, '正在匹配…'));
   parts.push(box);
-  view.replaceChildren(...parts.filter(Boolean));
+  show(view, parts);
   try {
     const matches = await api('/api/match?limit=30&maxPerCompany=4');
     box.replaceChildren(...(matches.length
@@ -318,7 +323,7 @@ async function viewApplications(view) {
   const company = h('input', { placeholder: '公司', 'aria-label': '公司' });
   const title = h('input', { placeholder: '岗位', 'aria-label': '岗位' });
   const groups = STAGES.map((s) => [s, apps.filter((a) => a.status === s)]).filter(([, v]) => v.length);
-  view.replaceChildren(
+  show(view,
     h('div', { class: 'head' }, h('h1', null, '投递进度'), h('span', { class: 'sub' }, '接上邮箱后，笔试和面试邀请会自动更新进度')),
     h('div', { class: 'card' },
       h('div', { class: 'funnel' },
@@ -347,7 +352,7 @@ async function viewSchedule(view) {
   const start = h('input', { type: 'datetime-local', 'aria-label': '开始时间' });
   const link = h('input', { placeholder: '会议或考试链接（选填）', 'aria-label': '链接' });
   const ics = location.origin + '/api/calendar.ics' + (token() ? '?token=' + encodeURIComponent(token()) : '');
-  view.replaceChildren(
+  show(view,
     h('div', { class: 'head' }, h('h1', null, '日程'), h('span', { class: 'sub' }, '时间按北京时间录入')),
     h('div', { class: 'card' }, events.length
       ? h('div', { class: 'list' }, events.map((e) => h('div', { class: 'item' },
@@ -379,7 +384,7 @@ async function viewProfile(view) {
     c.checked = (p.recruitTypes || []).includes(t);
     return h('label', { class: 'row', style: 'gap:6px' }, c, t);
   });
-  view.replaceChildren(
+  show(view,
     h('div', { class: 'head' }, h('h1', null, '我的档案'), h('span', { class: 'sub' }, '只存在你自己的电脑上，用于匹配打分')),
     h('form', { class: 'card', onsubmit: async (e) => {
       e.preventDefault();
@@ -424,7 +429,7 @@ async function viewConnect(view) {
   const sources = await api('/api/sources');
   const s = state.status;
   const mcp = location.origin + '/mcp';
-  view.replaceChildren(
+  show(view,
     h('div', { class: 'head' }, h('h1', null, '接入 Agent'), h('span', { class: 'sub' }, '让你的 Agent 直接查岗位和管投递')),
     h('div', { class: 'card' },
       snippet('Claude Code', 'claude mcp add --transport http campus-radar ' + mcp),

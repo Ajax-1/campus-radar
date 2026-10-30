@@ -1,6 +1,6 @@
 package io.github.ajax1.campusradar.api;
 
-import io.github.ajax1.campusradar.match.JobMatcher;
+import io.github.ajax1.campusradar.match.MatchCache;
 import io.github.ajax1.campusradar.match.MatchResult;
 import io.github.ajax1.campusradar.profile.ProfileService;
 import io.github.ajax1.campusradar.profile.ProfileView;
@@ -12,18 +12,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/api")
 public class ProfileController {
 
     private final ProfileService profiles;
-    private final JobMatcher matcher;
+    private final MatchCache matches;
 
-    public ProfileController(ProfileService profiles, JobMatcher matcher) {
+    public ProfileController(ProfileService profiles, MatchCache matches) {
         this.profiles = profiles;
-        this.matcher = matcher;
+        this.matches = matches;
     }
 
     @GetMapping("/profile")
@@ -42,6 +41,6 @@ public class ProfileController {
     @GetMapping("/match")
     public List<MatchResult> match(@RequestParam(defaultValue = "10") int limit,
                                    @RequestParam(defaultValue = "3") int maxPerCompany) {
-        return matcher.match(profiles.current(), Math.clamp(limit, 1, 50), maxPerCompany, Set.of());
+        return matches.match(profiles.current(), Math.clamp(limit, 1, 50), maxPerCompany);
     }
 }

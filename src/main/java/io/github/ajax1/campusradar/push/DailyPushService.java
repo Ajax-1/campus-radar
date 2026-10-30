@@ -16,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,6 +53,7 @@ public class DailyPushService {
     private final PushChannel channel;
     private final ScheduleService schedule;
     private final RadarProperties.Push config;
+    private volatile LocalDate attemptedOn;
 
     public DailyPushService(ProfileService profiles, JobMatcher matcher, PushRecordRepository records,
                             PushChannel channel, ScheduleService schedule, RadarProperties properties) {
@@ -73,11 +75,22 @@ public class DailyPushService {
                 matches.isEmpty() ? null : withSchedule(format(matches, today())));
     }
 
+    /**
+     * 今天还没推过，并且现在是合适打扰人的时间。定时推送那一刻电脑可能没开机，开机后靠这个补上
+     */
+    public boolean missedToday() {
+        ZonedDateTime now = ZonedDateTime.now(ZoneId.of(config.zone()));
+        return channel.enabled() && now.getHour() >= 8 && now.getHour() < 23
+                && !now.toLocalDate().equals(attemptedOn)
+                && !records.existsByPushedAtAfter(now.toLocalDate().atStartOfDay(now.getZone()).toInstant());
+    }
+
     @Transactional
     public Outcome pushNow() {
         if (!channel.enabled()) {
             return new Outcome(Status.DISABLED, List.of(), null);
         }
+        attemptedOn = today();
         List<MatchResult> matches = pick();
         if (matches.isEmpty()) {
             log.info("没有新的匹配岗位，今天不推送");

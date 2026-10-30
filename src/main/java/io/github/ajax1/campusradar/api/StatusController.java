@@ -30,7 +30,8 @@ public class StatusController {
      * @param lastCollectedAt 最近一次采集开始的时间，从未采集时为空
      */
     public record Status(String version, boolean hosted, long openJobs, int sources, Instant lastCollectedAt,
-                         boolean collecting, List<String> collectingSources, boolean mailEnabled, boolean pushEnabled) {
+                         boolean collecting, List<String> collectingSources, boolean mailEnabled, boolean pushEnabled,
+                         boolean snapshot) {
     }
 
     private final JobPostingRepository jobs;
@@ -57,6 +58,7 @@ public class StatusController {
         Instant last = sources.stream().map(SourceStatus::lastRunAt).filter(Objects::nonNull)
                 .max(Comparator.naturalOrder()).orElse(null);
         return new Status(version, properties.hosted().enabled(), jobs.countByStatus(JobStatus.OPEN), sources.size(),
-                last, collect.collecting(), collect.collectingSources(), properties.mail().enabled(), push.enabled());
+                last, collect.collecting(), collect.collectingSources(), properties.mail().enabled(), push.enabled(),
+                properties.snapshot().enabled());
     }
 }

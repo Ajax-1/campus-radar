@@ -9,6 +9,11 @@ server:
 spring:
   application:
     name: campus-radar
+  task:
+    scheduling:
+      pool:
+        # 一轮采集要十几分钟，不能让邮箱同步和提醒排队等它
+        size: 4
   datasource:
     url: jdbc:h2:file:./data/campus-radar;AUTO_SERVER=TRUE
     username: sa
@@ -42,6 +47,11 @@ radar:
     detail-interval-ms: 300
     disabled-sources: []
     when-empty: ${RADAR_COLLECT_WHEN_EMPTY:true}
+    max-age-hours: ${RADAR_COLLECT_MAX_AGE_HOURS:26}
+  snapshot:
+    # 填了就不再请求各公司官网，改为下载现成的岗位快照，首次启动几秒就有数据
+    url: ${RADAR_SNAPSHOT_URL:}
+    export-path: ${RADAR_SNAPSHOT_EXPORT:}
   mcp:
     token: ${RADAR_MCP_TOKEN:}
   hosted:

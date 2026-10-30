@@ -18,6 +18,8 @@ public interface JobPostingRepository extends JpaRepository<JobPosting, Long>, J
 
     long countByStatus(JobStatus status);
 
+    List<JobPosting> findByStatus(JobStatus status);
+
     /**
      * 把本轮采集没有再出现的岗位标记为下线
      */

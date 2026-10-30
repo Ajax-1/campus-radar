@@ -13,16 +13,30 @@ import java.util.List;
  * @param push        每日推送
  * @param mail        邮箱同步（识别笔试、面试邀请）
  * @param hosted      公开部署的只读模式
+ * @param snapshot    岗位快照：一处采集，所有实例共用
  */
 @ConfigurationProperties(prefix = "radar")
 public record RadarProperties(Collect collect, Mcp mcp, List<FeishuSite> feishuSites, Push push, Mail mail,
-                              Hosted hosted) {
+                              Hosted hosted, Snapshot snapshot) {
 
     public RadarProperties {
         feishuSites = feishuSites == null ? List.of() : List.copyOf(feishuSites);
         push = push == null ? new Push(null, null, null, "-", "Asia/Shanghai", 5, 2) : push;
         mail = mail == null ? new Mail(null, 993, null, null, "INBOX", 14, "-", "Asia/Shanghai", null) : mail;
         hosted = hosted == null ? new Hosted(false, 60, 3000) : hosted;
+        snapshot = snapshot == null ? new Snapshot(null, null) : snapshot;
+    }
+
+    /**
+     * 每个用户都去扫一遍公司官网既慢，又会给对方服务器添负担。设置了 url 的实例不再请求官网，只下载别人采好的快照。
+     *
+     * @param url        快照地址，支持 https: 和 file:，为空则直接采集官网
+     * @param exportPath 非空时启动后采集一轮，把快照写到这个路径然后退出，用于定时任务
+     */
+    public record Snapshot(String url, String exportPath) {
+        public boolean enabled() {
+            return url != null && !url.isBlank();
+        }
     }
 
     /**
@@ -73,9 +87,11 @@ public record RadarProperties(Collect collect, Mcp mcp, List<FeishuSite> feishuS
      * @param detailIntervalMs  逐个拉取详情时的最小间隔
      * @param disabledSources   暂停采集的数据源编码
      * @param whenEmpty         启动时岗位库是空的就立即采集一轮，第一次打开就有数据
+     * @param maxAgeHours       距上次采集超过这么久就补采，电脑在定时任务的时刻合盖也不会断更；0 表示不补采
      */
     public record Collect(String cron, String zone, boolean runOnStartup, long requestIntervalMs,
-                          long detailIntervalMs, List<String> disabledSources, boolean whenEmpty) {
+                          long detailIntervalMs, List<String> disabledSources, boolean whenEmpty,
+                          int maxAgeHours) {
         public Collect {
             disabledSources = disabledSources == null ? List.of() : List.copyOf(disabledSources);
         }

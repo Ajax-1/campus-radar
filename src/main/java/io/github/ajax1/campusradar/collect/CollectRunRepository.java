@@ -10,4 +10,6 @@ public interface CollectRunRepository extends JpaRepository<CollectRun, Long> {
     Optional<CollectRun> findFirstBySourceAndStatusInOrderByStartedAtDesc(String source, List<CollectRun.Status> statuses);
 
     Optional<CollectRun> findFirstBySourceOrderByStartedAtDesc(String source);
+
+    Optional<CollectRun> findFirstByOrderByStartedAtDesc();
 }
