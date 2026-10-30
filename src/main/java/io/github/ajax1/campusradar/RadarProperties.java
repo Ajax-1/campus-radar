@@ -20,7 +20,7 @@ public record RadarProperties(Collect collect, Mcp mcp, List<FeishuSite> feishuS
 
     public RadarProperties {
         feishuSites = feishuSites == null ? List.of() : List.copyOf(feishuSites);
-        push = push == null ? new Push(null, "-", "Asia/Shanghai", 5, 2) : push;
+        push = push == null ? new Push(null, null, null, "-", "Asia/Shanghai", 5, 2) : push;
         mail = mail == null ? new Mail(null, 993, null, null, "INBOX", 14, "-", "Asia/Shanghai", null) : mail;
         hosted = hosted == null ? new Hosted(false, 60, 3000) : hosted;
     }
@@ -53,16 +53,16 @@ public record RadarProperties(Collect collect, Mcp mcp, List<FeishuSite> feishuS
     }
 
     /**
-     * @param wecomWebhook  企业微信群机器人 webhook 地址，为空则不推送
+     * @param wecomWebhook  企业微信群机器人 webhook 地址
+     * @param feishuWebhook 飞书群自定义机器人 webhook 地址
+     * @param serverchanKey Server酱的 SendKey，消息推到个人微信
      * @param cron          推送时间，默认在每日采集之后
      * @param zone          cron 使用的时区
      * @param topN          每次推送的岗位数
      * @param maxPerCompany 一次推送里同一家公司最多几个岗位
      */
-    public record Push(String wecomWebhook, String cron, String zone, int topN, int maxPerCompany) {
-        public boolean enabled() {
-            return wecomWebhook != null && !wecomWebhook.isBlank();
-        }
+    public record Push(String wecomWebhook, String feishuWebhook, String serverchanKey, String cron, String zone,
+                       int topN, int maxPerCompany) {
     }
 
     /**

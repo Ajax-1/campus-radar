@@ -42,7 +42,7 @@ public class StatusController {
 
     public StatusController(JobPostingRepository jobs, CollectService collect, SourceStatusService sourceStatus,
                             PushChannel push, RadarProperties properties,
-                            @Value("${spring.ai.mcp.server.version}") String version) {
+                            @Value("${spring.ai.mcp.server.version:dev}") String version) {
         this.jobs = jobs;
         this.collect = collect;
         this.sourceStatus = sourceStatus;

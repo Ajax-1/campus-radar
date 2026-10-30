@@ -19,7 +19,7 @@ import java.util.Map;
  * 只能单向发消息，收不到群里的回复，所以「选中某个岗位」要通过 MCP 或 REST 完成。
  */
 @Component
-public class WeComPushChannel implements PushChannel {
+public class WeComPushChannel implements PushTarget {
 
     /**
      * 企业微信 markdown 消息正文上限 4096 字节
@@ -34,12 +34,17 @@ public class WeComPushChannel implements PushChannel {
     }
 
     @Override
+    public String name() {
+        return "企业微信";
+    }
+
+    @Override
     public boolean enabled() {
         return webhook != null && !webhook.isBlank();
     }
 
     @Override
-    public void sendMarkdown(String markdown) {
+    public void send(String markdown) {
         if (!enabled()) {
             throw new IllegalStateException("没有配置企业微信 webhook（RADAR_WECOM_WEBHOOK）");
         }

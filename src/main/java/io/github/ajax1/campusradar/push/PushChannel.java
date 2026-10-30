@@ -1,7 +1,7 @@
 package io.github.ajax1.campusradar.push;
 
 /**
- * 推送渠道。P1 只有企业微信群机器人；个人微信、飞书、邮件以后按需加。
+ * 业务代码用的推送入口，具体发到哪里见 {@link PushTarget}
  */
 public interface PushChannel {
 

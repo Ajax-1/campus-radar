@@ -16,3 +16,5 @@ radar:
     host: ""
   push:
     wecom-webhook: ""
+    feishu-webhook: ""
+    serverchan-key: ""

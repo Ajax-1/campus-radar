@@ -62,8 +62,13 @@ radar:
     # 人在海外时设成当地时区，提醒和日程会同时显示北京时间和当地时间，如 America/New_York
     display-zone: ${RADAR_DISPLAY_ZONE:}
   push:
-    # 企业微信群机器人：群设置 → 群机器人 → 添加，复制 webhook 地址；不配则不推送
+    # 配哪个就推到哪个，可以同时配多个，都不配则不推送
+    # Server酱推到个人微信，最省事：微信扫码登录 sct.ftqq.com 复制 SendKey
+    serverchan-key: ${RADAR_SERVERCHAN_KEY:}
+    # 企业微信群机器人：群设置 → 群机器人 → 添加，复制 webhook 地址
     wecom-webhook: ${RADAR_WECOM_WEBHOOK:}
+    # 飞书群自定义机器人：群设置 → 群机器人 → 添加自定义机器人，复制 webhook 地址
+    feishu-webhook: ${RADAR_FEISHU_WEBHOOK:}
     # 北京时间 7:30，在 7 点的采集之后
     cron: "0 30 7 * * *"
     zone: Asia/Shanghai
@@ -99,6 +104,18 @@ radar:
       company: 德赛西威
       base-url: https://yesv-desaysv.jobs.feishu.cn
       aliases: [Desay SV, 德赛]
+    - source: momenta
+      company: Momenta
+      base-url: https://momenta.jobs.feishu.cn
+      aliases: [魔门塔]
+    - source: bambulab
+      company: 拓竹科技
+      base-url: https://bambulab.jobs.feishu.cn
+      aliases: [拓竹, Bambu Lab, BambuLab]
+    - source: papergames
+      company: 叠纸游戏
+      base-url: https://papergames.jobs.feishu.cn
+      aliases: [叠纸, Paper Games, PaperGames]
 
 management:
   endpoints:
