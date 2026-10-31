@@ -266,11 +266,11 @@ function viewHome(view) {
       h('section', null,
         h('h2', { class: 'section-title' }, '按公司看'),
         companyBoard()),
-      h('section', { class: 'agent' },
+      state.db.mcpUrl ? h('section', { class: 'agent' },
         h('div', null,
           h('h2', { class: 'section-title' }, '让 Agent 帮你找'),
           h('p', { class: 'section-lede' }, '接入后可以直接问：这周字节有什么新的后端岗位？')),
-        agentPanel()),
+        agentPanel()) : null,
       h('section', { class: 'local' },
         h('div', null,
           h('h2', { class: 'section-title' }, '档案和投递记录，只留在你的浏览器'),
@@ -445,14 +445,17 @@ function viewTracker(view) {
 /* 接入 Agent */
 
 function viewAgent(view) {
+  const mcp = state.db?.mcpUrl;
   view.replaceChildren(h('div', { class: 'wrap page' },
-    h('div', { class: 'page-head' }, h('div', null, h('h1', null, '接入 Agent'), h('p', null, '接入公开实例不用安装任何东西，只读，不收集个人信息。'))),
+    h('div', { class: 'page-head' }, h('div', null, h('h1', null, '接入 Agent'), h('p', null, mcp ? '接入公开实例不用安装任何东西，只读，不收集个人信息。' : '公开实例即将开放。现在可以在自己电脑上运行完整版，再接入 Agent。'))),
     h('div', { class: 'stack' },
-      h('section', { class: 'agent' }, agentPanel()),
-      h('section', null,
-        h('h2', null, '公开实例提供的工具'),
-        h('div', { class: 'tools' },
-          [['search_jobs', '按公司、城市、方向和技能检索岗位'], ['get_job', '查看岗位标签和官网链接'], ['list_sources', '查看覆盖的公司和更新时间']].map(([name, text]) => h('div', null, h('code', null, name), h('p', null, text))))),
+      mcp ? [
+        h('section', { class: 'agent' }, agentPanel()),
+        h('section', null,
+          h('h2', null, '公开实例提供的工具'),
+          h('div', { class: 'tools' },
+            [['search_jobs', '按公司、城市、方向和技能检索岗位'], ['get_job', '查看岗位标签和官网链接'], ['list_sources', '查看覆盖的公司和更新时间']].map(([name, text]) => h('div', null, h('code', null, name), h('p', null, text))))),
+      ] : null,
       h('section', null,
         h('h2', null, '想要完整功能，在自己电脑上运行'),
         h('p', { class: 'prose' }, '完整版可以读 JD 全文、按 JD 改简历、识别邮件里的笔试面试邀请、进日历并推送到微信。所有数据都在你自己的电脑上。安装方法见',
@@ -469,7 +472,7 @@ const ROUTES = [
   { path: '', label: '岗位', view: viewHome },
   { path: 'foryou', label: '推荐', view: viewForYou, needsData: true },
   { path: 'tracker', label: '投递', view: viewTracker },
-  { path: 'agent', label: '接入 Agent', view: viewAgent },
+  { path: 'agent', label: '接入 Agent', view: viewAgent, needsData: true },
 ];
 
 function route() {
