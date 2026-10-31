@@ -1,0 +1,15 @@
+# 公开只读的远程 MCP。岗位索引打包在 Worker 里，由 scripts/build-index.mjs 生成，每天随 Snapshot 工作流部署一次
+name = "campus-radar"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+
+[[rules]]
+type = "Text"
+globs = ["**/*.txt"]
+fallthrough = false
+
+# 单个来源 IP 每分钟 60 次，和 hosted 模式的默认值一致
+[[ratelimits]]
+name = "LIMITER"
+namespace_id = "1001"
+simple = { limit = 60, period = 60 }

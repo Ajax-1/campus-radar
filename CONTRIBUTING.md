@@ -20,6 +20,8 @@ curl -X POST http://127.0.0.1:8090/api/admin/collect/momenta
 
 返回的 `status` 是 `SUCCESS`、`fetched` 大于 0 就可以提 PR 了。
 
+无论哪种公司，都要在 `scripts/build-index.mjs` 的 `COMPANIES` 里加一行，网页版和远程 MCP 才能显示这家公司的名称和简称。漏了构建会失败。
+
 **其他招聘系统**：实现 `JobCollector` 并标注 `@Component`，放在 `collect/source/` 下。解析和请求要分开，用录制的真实响应测试解析（放在 `src/test/resources/fixtures/`），可以参考 `MeituanCollector`。
 
 ## 采集边界
@@ -38,6 +40,8 @@ curl -X POST http://127.0.0.1:8090/api/admin/collect/momenta
 ```bash
 ./mvnw test                                  # 服务端测试
 cd extension-tests && npm install && npm test # 插件测试
+cd web && npm test                           # 网页版检索和打分
+cd worker && npm test                        # 远程 MCP
 ```
 
 需要 Java 21+。提交前请确保测试通过，`git commit` 信息说明这次改动的原因。

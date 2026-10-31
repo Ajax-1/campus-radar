@@ -1,18 +1,28 @@
-# 采集一轮并发布岗位快照，其他实例设置 RADAR_SNAPSHOT_URL 后下载它，不用各自请求官网。
-# 快照发布到 data 分支，每次覆盖，不会让仓库越来越大。
-# 确认要公开发布后，取消下面 schedule 的注释即可每天自动运行。
+# 采集一轮，生成不含 JD 全文的公开索引，发布网页版和远程 MCP。
+# 全量快照只留在运行环境里，不上传、不提交；对外的只有 scripts/build-index.mjs 生成的索引。
+# 手动运行时默认只试跑，看各官网能否访问，不发布任何内容。
+# 确认能跑通后，取消下面 schedule 的注释即可每天自动发布。
 name: Snapshot
 
 on:
   workflow_dispatch:
+    inputs:
+      publish:
+        description: 发布到 GitHub Pages 和 Cloudflare Worker，不勾选只试跑
+        type: boolean
+        default: false
   # schedule:
   #   - cron: "30 23 * * *"  # 北京时间 7:30
 
 permissions:
-  contents: write
+  contents: read
+
+concurrency:
+  group: snapshot
+  cancel-in-progress: false
 
 jobs:
-  snapshot:
+  build:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -22,15 +32,58 @@ jobs:
           distribution: temurin
           java-version: "21"
           cache: maven
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
       - run: mvn -B -DskipTests package
-      - name: Collect and export
+      - name: Collect
         run: java -jar target/campus-radar.jar --server.port=0 --radar.collect.when-empty=false --radar.snapshot.export-path=out/jobs.json.gz
-      - name: Publish
-        run: |
-          cd out
-          git init -q -b data
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add jobs.json.gz
-          git commit -q -m "snapshot $(date -u +%F)"
-          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}" data
+      - name: Build public index
+        run: node scripts/build-index.mjs out/jobs.json.gz
+        env:
+          PUBLIC_MCP_URL: ${{ vars.PUBLIC_MCP_URL }}
+      - uses: actions/upload-pages-artifact@v3
+        if: github.event_name == 'schedule' || inputs.publish
+        with:
+          path: dist/site
+      - uses: actions/upload-artifact@v4
+        if: github.event_name == 'schedule' || inputs.publish
+        with:
+          name: worker-index
+          path: worker/generated/index.txt
+          retention-days: 1
+
+  pages:
+    needs: build
+    if: github.event_name == 'schedule' || inputs.publish
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4
+
+  worker:
+    needs: build
+    if: (github.event_name == 'schedule' || inputs.publish) && vars.PUBLIC_MCP_URL != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: actions/download-artifact@v4
+        with:
+          name: worker-index
+          path: worker/generated
+      - run: npm ci
+        working-directory: worker
+      - run: npx wrangler deploy
+        working-directory: worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}

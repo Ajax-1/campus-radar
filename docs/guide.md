@@ -112,7 +112,7 @@ curl -X POST http://127.0.0.1:8090/api/admin/remind      # 立即检查提醒
 
 ## 自己部署公开实例
 
-`hosted` 模式把服务变成多人共用的只读岗位库：MCP 只保留 `search_jobs`、`get_job`、`list_sources`，REST 只保留岗位接口，其余一律 404，并按来源 IP 限流。
+想要带 JD 全文的公开实例，可以自己部署 `hosted` 模式，注意这会公开 JD 全文。它把服务变成多人共用的只读岗位库：MCP 只保留 `search_jobs`、`get_job`、`list_sources`，REST 只保留岗位接口，其余一律 404，并按来源 IP 限流。
 
 ```bash
 SPRING_PROFILES_ACTIVE=hosted RADAR_BIND_ADDRESS=0.0.0.0 java -jar campus-radar.jar
@@ -137,7 +137,35 @@ java -jar campus-radar.jar --server.port=0 --radar.snapshot.export-path=out/jobs
 RADAR_SNAPSHOT_URL=https://example.com/jobs.json.gz java -jar campus-radar.jar
 ```
 
-快照只有公开的岗位信息，不含档案、台账、日程和邮件。仓库里的 `Snapshot` 工作流可以把它发布到 `data` 分支。
+快照只有公开的岗位信息，不含档案、台账、日程和邮件，但包含 JD 全文，发布前请确认合规风险。
+
+## 网页版和远程 MCP
+
+不用安装的入口，都由 `Snapshot` 工作流生成：
+
+- **网页版**（`web/`）：静态页面，部署在 GitHub Pages。岗位索引下载到浏览器，搜索和打分都在本地完成。档案和投递记录存在 `localStorage`，可以导出和导入
+- **远程 MCP**（`worker/`）：Cloudflare Worker，只有 `search_jobs`、`get_job`、`list_sources` 三个工具，无状态，不含任何个人数据
+
+两者共用 `web/search.js`，数据来自 `scripts/build-index.mjs`。它把全量快照转成公开索引，只保留标题、公司、城市、届别、官网链接和从 JD 提取的技能标签，**不含 JD 原文**。全量快照只留在工作流的运行环境里。
+
+```bash
+# 本地试跑：先导出快照，再生成网页和 Worker 用的索引
+java -jar target/campus-radar.jar --server.port=0 --radar.snapshot.export-path=out/jobs.json.gz
+node scripts/build-index.mjs out/jobs.json.gz
+python3 -m http.server -d dist/site   # 网页版
+cd worker && npm install && npm run dev   # 远程 MCP，地址 http://127.0.0.1:8787/mcp
+```
+
+部署需要在仓库里配置：
+
+| 配置 | 类型 | 说明 |
+| --- | --- | --- |
+| Settings → Pages → Source | 选 GitHub Actions | 开启网页版 |
+| `PUBLIC_MCP_URL` | Variable | Worker 的 `/mcp` 地址。没设置时跳过 Worker，网页上也不显示 MCP 命令 |
+| `CLOUDFLARE_ACCOUNT_ID` | Variable | Cloudflare 账号 ID |
+| `CLOUDFLARE_API_TOKEN` | Secret | 需要 Workers Scripts 的编辑权限 |
+
+手动运行工作流时默认只试跑，勾选 publish 才发布。构建时岗位少于 1000 个会失败，避免用残缺数据覆盖线上。
 
 ## 配置一览
 

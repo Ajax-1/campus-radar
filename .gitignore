@@ -9,3 +9,8 @@ data/
 .radar_token
 
 extension-tests/node_modules/
+
+dist/
+worker/generated/
+worker/node_modules/
+worker/.wrangler/
