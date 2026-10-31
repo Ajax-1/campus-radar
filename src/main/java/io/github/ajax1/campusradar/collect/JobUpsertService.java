@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 /**
@@ -29,7 +30,8 @@ public class JobUpsertService {
     }
 
     @Transactional
-    public Outcome upsert(String source, String company, RawJob raw, Instant seenAt) {
+    public Outcome upsert(String source, String company, RawJob raw, Instant seenTime) {
+        Instant seenAt = roundTime(seenTime);
         String cities = Texts.joinCities(raw.cities());
         // 摘要覆盖所有由解析得出的字段，解析逻辑改进后下一轮采集就能把旧数据刷新
         String hash = Texts.hash(raw.title(), raw.category(), cities, raw.description(), raw.requirement(),
@@ -56,12 +58,20 @@ public class JobUpsertService {
 
     @Transactional
     public int closeNotSeenSince(String source, Instant runStart) {
-        return repository.closeNotSeenSince(source, runStart, Instant.now());
+        return repository.closeNotSeenSince(source, roundTime(runStart), Instant.now());
     }
 
     @Transactional(readOnly = true)
     public long countOpen(String source) {
         return repository.countBySourceAndStatus(source, JobStatus.OPEN);
+    }
+
+    /**
+     * 写入和比较用同一个精度。Linux 的时钟精度比数据库高，不统一的话存进去的时间会被截断得比本轮开始时间还早，
+     * 刚采到的岗位就会被当成已下线
+     */
+    private static Instant roundTime(Instant time) {
+        return time.truncatedTo(ChronoUnit.MILLIS);
     }
 
     private static void apply(JobPosting job, String company, RawJob raw, String cities, String hash, Instant seenAt) {

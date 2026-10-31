@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -70,6 +71,19 @@ class CollectServiceTest {
         CollectRun run3 = service.run("fake");
         assertThat(jobs.findBySourceAndExternalId("fake", "10")).map(JobPosting::getStatus).contains(JobStatus.OPEN);
         assertThat(run3.getClosed()).isZero();
+    }
+
+    /**
+     * Linux 的时钟精度到纳秒，数据库只存到微秒。写入时向下舍入的 lastSeenAt 不能比本轮开始时间早，否则刚采到的岗位会被当成已下线
+     */
+    @Test
+    void jobsSeenThisRunStayOpenWithNanosecondClock() {
+        Instant start = Instant.parse("2026-10-30T00:00:00.123456489Z");
+
+        upsert.upsert("fake", "测试公司", job(1, "职责"), start);
+
+        assertThat(upsert.closeNotSeenSince("fake", start)).isZero();
+        assertThat(jobs.findBySourceAndExternalId("fake", "1")).map(JobPosting::getStatus).contains(JobStatus.OPEN);
     }
 
     @Test
