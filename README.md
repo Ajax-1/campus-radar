@@ -2,7 +2,7 @@
 
 **每天告诉你今天该投什么、什么快截止、哪封邮件是面试邀请。**
 
-开源的校招求职 agent。岗位直接来自公司校招官网，所有数据留在你自己的电脑上，也可以接进 Claude Code、Codex、OpenClaw 等任何支持 MCP 的 Agent。
+开源的校招求职 agent。打开网页就能搜 17 家公司官网的校招岗位，不用注册，也不用安装。也可以接进 Claude Code、Codex、OpenClaw 等任何支持 MCP 的 Agent。
 
 ![今日推荐](docs/images/today.png)
 
@@ -22,36 +22,27 @@
 
 ## 开始使用
 
-**Docker**（推荐）：
+**打开网页就能用**：<https://ajax-1.github.io/campus-radar/>
+
+搜岗位不用注册，也不用安装。填上方向和技能就能看到推荐，投递记录只存在你的浏览器里，可以导出备份。
+
+**接入你的 Agent**：把这句话发给它，它会自己接好：
+
+> 读取 https://ajax-1.github.io/campus-radar/SKILL.md ，按里面的说明接入校招雷达
+
+或者一条命令接入：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Ajax-1/campus-radar/main/docker-compose.yml -o docker-compose.yml
-docker compose up -d
-```
-
-**macOS、Linux 一键安装**（需要 [Java 21+](https://adoptium.net/)）：
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/Ajax-1/campus-radar/main/install.sh | sh -s -- --autostart
-```
-
-**Windows**：安装 Java 21 后，从 [Releases](https://github.com/Ajax-1/campus-radar/releases) 下载 `campus-radar.jar`，运行 `java -jar campus-radar.jar`。
-
-然后打开 <http://localhost:8090>，填上方向和技能就能看到推荐。第一次启动会采集一轮官网，大约 8 分钟，期间可以边用边等。
-
-## 接入你的 Agent
-
-服务运行后，一条命令接入：
-
-```bash
-claude mcp add --transport http campus-radar http://127.0.0.1:8090/mcp
+claude mcp add --transport http campus-radar https://campus-radar.anjiajun0228.workers.dev/mcp
 ```
 
 ```bash
-codex mcp add campus-radar --url http://127.0.0.1:8090/mcp
+codex mcp add campus-radar --url https://campus-radar.anjiajun0228.workers.dev/mcp
 ```
 
-其他客户端在 MCP 配置里填 `http://127.0.0.1:8090/mcp`，传输方式 Streamable HTTP。
+其他客户端在 MCP 配置里填 `https://campus-radar.anjiajun0228.workers.dev/mcp`，传输方式 Streamable HTTP。
+
+这个地址在中国大陆部分网络下连不上，需要代理。连不上时可以用上面的网页版，或者[在自己电脑上运行](#在自己电脑上运行)。
 
 再装上技能，Agent 就知道怎么陪你走完求职全程，包括**按 JD 改简历**。它只重组你已有的经历，不编造项目和数字，改动逐条列出依据，拿不准的地方会先问你：
 
@@ -69,12 +60,40 @@ npx skills add Ajax-1/campus-radar
 
 > 按这个 JD 改一下我的简历
 
-| 工具 | 作用 |
-| --- | --- |
-| `search_jobs` `get_job` `list_sources` | 检索岗位、查看完整 JD、查看数据新鲜度 |
-| `get_profile` `update_profile` `match_jobs` | 求职档案和打分推荐 |
-| `record_application` `update_application` `list_applications` | 投递台账 |
-| `list_events` `add_event` `sync_mail` | 笔试面试日程和邮箱同步 |
+公开实例和本地运行的区别：
+
+| 功能 | 公开实例 | 本地运行 |
+| --- | --- | --- |
+| `search_jobs` `get_job` `list_sources` 检索岗位 | 有，JD 全文要去官网看 | 有，含 JD 全文 |
+| `get_profile` `update_profile` `match_jobs` 档案和推荐 | 网页版有，存在浏览器 | 有 |
+| `record_application` `update_application` `list_applications` 投递台账 | 网页版有，存在浏览器 | 有 |
+| `list_events` `add_event` `sync_mail` 日程和邮箱同步 | 没有 | 有 |
+| 微信推送和笔试面试提醒 | 没有 | 有 |
+
+## 在自己电脑上运行
+
+想读 JD 全文、接邮箱、收提醒，就在自己电脑上运行完整版，所有数据都留在本机。
+
+**Docker**：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Ajax-1/campus-radar/main/docker-compose.yml -o docker-compose.yml
+docker compose up -d
+```
+
+**macOS、Linux 一键安装**（需要 [Java 21+](https://adoptium.net/)）：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Ajax-1/campus-radar/main/install.sh | sh -s -- --autostart
+```
+
+**Windows**：安装 Java 21 后，从 [Releases](https://github.com/Ajax-1/campus-radar/releases) 下载 `campus-radar.jar`，运行 `java -jar campus-radar.jar`。
+
+然后打开 <http://localhost:8090>。第一次启动会采集一轮官网，大约 8 分钟，期间可以边用边等。Agent 改用本地地址接入：
+
+```bash
+claude mcp add --transport http campus-radar http://127.0.0.1:8090/mcp
+```
 
 ## 推到微信
 
@@ -94,6 +113,7 @@ Docker 写在 `docker-compose.yml` 里，一键安装的写在 `~/.campus-radar/
 - [订阅日历](docs/guide.md#投递闭环邮箱--台账--日历--提醒)：苹果、Google、Outlook 日历都可以
 - [浏览器插件](docs/guide.md#投递闭环邮箱--台账--日历--提醒)：在网申页面一键填表，只填空字段，从不提交
 - 人在海外：设置 `RADAR_DISPLAY_ZONE=America/New_York`，日程同时显示北京时间和当地时间
+- [网页版和远程 MCP](docs/guide.md#网页版和远程-mcp)：怎么生成和部署
 - [部署公开实例](docs/guide.md#自己部署公开实例)：多人共用的只读岗位库
 - [岗位快照](docs/guide.md#岗位快照)：一处采集，所有实例共用
 
@@ -105,7 +125,8 @@ Docker 写在 `docker-compose.yml` 里，一键安装的写在 `~/.campus-radar/
 
 ## 隐私
 
-- 服务默认只监听本机。档案、投递记录、邮件和日程都存在你自己的电脑上，没有任何上报
+- 网页版的档案和投递记录只存在你的浏览器里，不上传。公开实例不收集个人信息
+- 本地运行时，服务默认只监听本机。档案、投递记录、邮件和日程都存在你自己的电脑上，没有任何上报
 - 邮箱是只读的：不标记已读，不移动，不删除，只处理求职相关邮件
 - 浏览器插件填写的个人信息只存在本机浏览器
 - 配置令牌之前，服务只响应本机地址的请求，其他网页无法读取你的数据
@@ -113,13 +134,14 @@ Docker 写在 `docker-compose.yml` 里，一键安装的写在 `~/.campus-radar/
 ## 采集边界
 
 - 只采公司官网公开的校招和实习岗位，低频请求，每天一轮，保留原文链接，引导回官网投递
+- 网页版和公开实例不发布 JD 原文，只有标题、城市、届别、官网链接和技能标签
 - 不破解加密接口，不绕过验证码和风控，不采集聚合平台整理的内容
 
 岗位信息以官网为准。如果你代表某家公司，希望不被收录，请[提 issue](https://github.com/Ajax-1/campus-radar/issues)，我们会尽快处理。
 
 ## 技术
 
-Spring Boot、Spring AI、MCP Streamable HTTP、H2，网页界面没有构建步骤，打包在一个 jar 里。设计思路见[使用指南](docs/guide.md#设计要点)。
+完整版：Spring Boot、Spring AI、MCP Streamable HTTP、H2，打包在一个 jar 里。网页版是没有构建步骤的静态页面，远程 MCP 跑在 Cloudflare Workers 上，两者共用同一份检索代码。设计思路见[使用指南](docs/guide.md#设计要点)。
 
 ## 许可证
 
